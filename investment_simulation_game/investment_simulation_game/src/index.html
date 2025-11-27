@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FBLA Stock Market Simulation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Link CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app-shell">
+    <div class="glow"></div>
+
+    <header>
+      <div class="title-block">
+        <div class="title-pill">Student Investing Lab · FBLA Website</div>
+        <h1>Stock Market Practice Game</h1>
+        <p class="subtitle">
+          Practice buying and selling stocks in a safe environment. Each in-game
+          day prices move. Your goal is to grow your balance by making smart,
+          diversified choices — real market strategy with no risk.
+        </p>
+
+        <div class="steps">
+          <div class="step-pill"><span>1</span>Choose a company</div>
+          <div class="step-pill"><span>2</span>Buy a few shares</div>
+          <div class="step-pill"><span>3</span>Advance the day</div>
+        </div>
+      </div>
+
+      <div class="game-meta">
+        <div class="badge-row">
+          <div class="badge"><strong>Goal:</strong> $12,000 net worth</div>
+          <div class="badge"><strong>Start:</strong> $10,000 cash</div>
+        </div>
+        <div>Tip: Imagine this is real money. Would your strategy change?</div>
+      </div>
+    </header>
+
+    <main class="grid">
+
+      <!-- LEFT — STOCK TABLE -->
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Market Board</div>
+            <div class="panel-subtitle">Compare companies and buy safely.</div>
+          </div>
+          <div class="chips">
+            <div class="chip">Higher volatility = bigger swings</div>
+            <div class="chip">Learning tool · No real money</div>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Price</th>
+              <th>Change</th>
+              <th>Volatility</th>
+              <th>Owned</th>
+              <th>Trade</th>
+            </tr>
+          </thead>
+          <tbody id="stocks-body"></tbody>
+        </table>
+      </section>
+
+      <!-- RIGHT — PORTFOLIO -->
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Your Portfolio</div>
+            <div class="panel-subtitle">Track your performance.</div>
+          </div>
+          <div class="chips">
+            <div class="chip" id="riskChip">Risk: None</div>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Net Worth</div>
+            <div class="stat-value" id="statNetWorth">$0</div>
+            <div class="stat-tag-row">
+              <span>Since Day 1</span>
+              <span class="stat-tag" id="statReturnTag">0%</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-label">Available Cash</div>
+            <div class="stat-value" id="statCash">$0</div>
+            <div class="stat-tag-row">
+              <span>Cash Buffer</span>
+              <span class="stat-tag" id="statCashTag">Healthy</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-label">Invested in Stocks</div>
+            <div class="stat-value" id="statInvested">$0</div>
+            <div class="stat-tag-row">
+              <span>Diversification</span>
+              <span class="stat-tag" id="statDiversifyTag">OK</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-label">Realized P/L</div>
+            <div class="stat-value" id="statRealized">$0</div>
+            <div class="stat-tag-row">
+              <span>Closed trades</span>
+              <span class="stat-tag" id="statRealizedTag">Neutral</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-controls">
+          <div>
+            <div class="day-label">
+              Day <strong id="dayLabel">1</strong> / <span id="maxDayLabel">30</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-inner" id="dayProgress"></div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-outline btn-sm" id="resetBtn">Reset</button>
+            <button class="btn btn-primary" id="nextDayBtn">Next Day ▶</button>
+          </div>
+        </div>
+
+        <div class="lesson-card" id="lessonCard">
+          <div class="lesson-tag">Learning Tip</div>
+          <div class="lesson-title" id="lessonTitle">Welcome!</div>
+          <div class="lesson-body" id="lessonBody">
+            Start small with multiple companies. This lowers risk.
+          </div>
+          <div class="lesson-footer">
+            <span id="lessonHint">Triggered by: Game Start</span>
+            <button class="btn btn-outline btn-sm" id="newTipBtn">New Tip</button>
+          </div>
+        </div>
+
+        <div class="holdings-list" id="holdingsList"></div>
+        <div class="empty-hint" id="holdingsEmpty">
+          You do not own any shares yet. Buy something on the left!
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Trade Modal -->
+  <div class="overlay" id="tradeOverlay">
+    <div class="overlay-card">
+      <div class="overlay-title" id="tradeTitle">Trade</div>
+      <div class="overlay-subtitle" id="tradeSubtitle"></div>
+
+      <label for="tradeQuantityInput">Quantity</label>
+      <input type="number" id="tradeQuantityInput" min="1" step="1">
+
+      <div class="tiny-text" id="tradeHint"></div>
+
+      <div class="overlay-row">
+        <button class="btn btn-outline btn-sm" id="tradeCancelBtn">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="tradeConfirmBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <div class="toast-icon">ℹ</div>
+    <div id="toastMsg">Message</div>
+  </div>
+
+  <!-- JS -->
+  <script src="script.js"></script>
+</body>
+</html>
